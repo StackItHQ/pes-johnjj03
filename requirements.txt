@@ -2,6 +2,6 @@ google-auth
 google-auth-oauthlib 
 google-auth-httplib2 
 google-api-python-client 
-mysql-connector-python 
+psycopg2
 flask
 python-dotenv
