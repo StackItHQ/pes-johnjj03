@@ -1,0 +1,39 @@
+// Step 1: Set up the trigger
+function createTrigger() {
+    var spreadsheetId = '1JaB9-CK3VFFCa-6HAEonYGY_QKBLv5yHBdn4Civ05Lo';
+    var ss = SpreadsheetApp.openById(spreadsheetId);
+    ScriptApp.newTrigger('onEdit')
+      .forSpreadsheet(ss)
+      .onEdit()
+      .create();
+  }
+  
+  // Step 2: Create a function to handle changes
+  function onEdit(e) {
+    var range = e.range;
+    var oldValue = e.oldValue;
+    var newValue = e.value;
+    var sheet = range.getSheet();
+    var sheetName = sheet.getName();
+    var row = range.getRow();
+    var column = range.getColumn();
+    
+    // Step 3: Write the last edited timestamp into cell Z1
+    var timestamp = new Date();  // Get current date and time
+    sheet.getRange('AA26').setValue(timestamp);  // Write timestamp to cell Z1
+  
+    // Optional: If you still need the payload for future use
+    var payload = {
+      sheetName: sheetName,
+      row: row,
+      column: column,
+      oldValue: oldValue,
+      newValue: newValue,
+      timestamp: timestamp
+    };
+  
+    // You can remove or comment out the console.log if not needed
+    // console.log(payload);
+  }
+  
+  
