@@ -1,30 +1,17 @@
 import os 
-import sys
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 from dotenv import load_dotenv
-
-
+from api import sheets_api_setup
 from utils import read_all_from_sheet
 
 load_dotenv()
 
 # Google Sheets API setup
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
+sheet = sheets_api_setup()
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
-
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-service = build('sheets', 'v4', credentials=credentials)
-sheet = service.spreadsheets()
+SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
+SCOPES = [].append(os.getenv('SCOPES'))
 
 def update_operation_on_sheet(sheet_name, data):
-    # Initialize the Google Sheets API service
-    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
-
     # Extract column names, old values, and new values from data
     column_names, old_values, new_values = data
 

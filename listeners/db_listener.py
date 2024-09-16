@@ -5,12 +5,12 @@ import os
 from dotenv import load_dotenv
 from create_triggers import *
 
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 sheets_dir = os.path.join(parent_dir, 'sheets')
 sys.path.insert(0, sheets_dir)
 from sheets.default import *
-
 load_dotenv()
 
 

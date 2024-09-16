@@ -1,7 +1,5 @@
 import os 
 import sys
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -9,25 +7,18 @@ sys.path.insert(0, parent_dir)
 sheets_dir = os.path.join(parent_dir, 'sheets')
 sys.path.insert(0, sheets_dir)
 
-from utils import read_all_from_sheet
+from api import sheets_api_setup
+from utils import *
 
 load_dotenv()
 
 # Google Sheets API setup
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+SCOPES = [].append(os.getenv('SCOPES'))
 SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
-
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-service = build('sheets', 'v4', credentials=credentials)
-sheet = service.spreadsheets()
+sheet = sheets_api_setup()
 
 def delete_operation_on_sheet(sheet_name, data):
-    # Initialize the Google Sheets API service
-    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
 
     # Read all data from the sheet
     column_names, values = read_all_from_sheet(sheet_name)

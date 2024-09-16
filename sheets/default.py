@@ -12,8 +12,8 @@ from delete import *
 from utils import *
 
 
-
 def perform_operation_on_sheet(sheet_name, payload):
+    print(payload)
     operation = payload.split(":")[0]
 
     if operation == "INSERT":
