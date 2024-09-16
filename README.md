@@ -63,6 +63,9 @@ All the best ✨.
 
 ### Video 
 
+[![Video]](https://drive.google.com/file/d/1ChAmK1fnD9tw6ix0tFohyX16F9I7atXx/view?usp=drive_link)
+
+Please excuse the fact that the video is over 2 minutes long, I was in rush to complete it since it was already over the deadline.
 
 ### My Approach
 - After I read the problem statement, my first thought was to initially synchronize both the dataabase and the sheet, giving the user the choice to pick their preference.

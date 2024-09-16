@@ -47,19 +47,10 @@ async def listen_to_changes(table_name):
 
     while True:
         conn.poll()
-        last_edit_timestamp = read_timestamp_from_sheet(table_name)
-
-        if last_edit_timestamp:
-            last_sheet_edit_timestamp = datetime.datetime.strptime(last_edit_timestamp, "%m/%d/%Y %H:%M:%S")
-            if last_sheet_edit_timestamp > last_db_edit_timestamp:
-                print("Sheet was edited after the last database update. Updating database.")
-                write_sheets_to_db(table_name)
-                last_db_edit_timestamp = datetime.datetime.now().replace(microsecond=0)
-            else:
-                while conn.notifies:
-                    notify = conn.notifies.pop(0)
-                    perform_operation_on_sheet(table_name, notify.payload)
-                await asyncio.sleep(3)
+        while conn.notifies:
+            notify = conn.notifies.pop(0)
+            perform_operation_on_sheet(table_name, notify.payload)
+        await asyncio.sleep(3)
 
 if __name__ == "__main__":
 
