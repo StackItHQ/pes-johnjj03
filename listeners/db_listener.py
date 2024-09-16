@@ -4,6 +4,7 @@ import sys
 import os 
 from dotenv import load_dotenv
 from create_triggers import *
+import datetime
 
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -11,7 +12,16 @@ sys.path.insert(0, parent_dir)
 sheets_dir = os.path.join(parent_dir, 'sheets')
 sys.path.insert(0, sheets_dir)
 from sheets.default import *
+from start import write_sheets_to_db
 load_dotenv()
+
+def read_timestamp_from_sheet(sheet_name):
+    sheet = sheets_api_setup()
+    range_name = f'{sheet_name}!AA26'
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
+    if not result.get('values'):
+        return None
+    return result['values'][0][0]
 
 
 async def listen_to_changes(table_name):
@@ -33,13 +43,23 @@ async def listen_to_changes(table_name):
     cur.execute(f"LISTEN {table_name}_deletes;")
     print(f"Listening for changes on table: {table_name}")
 
+    last_db_edit_timestamp = datetime.datetime.now().replace(microsecond=0)
 
     while True:
         conn.poll()
-        while conn.notifies:
-            notify = conn.notifies.pop(0)
-            perform_operation_on_sheet(table_name, notify.payload)
-        await asyncio.sleep(1)
+        last_edit_timestamp = read_timestamp_from_sheet(table_name)
+
+        if last_edit_timestamp:
+            last_sheet_edit_timestamp = datetime.datetime.strptime(last_edit_timestamp, "%m/%d/%Y %H:%M:%S")
+            if last_sheet_edit_timestamp > last_db_edit_timestamp:
+                print("Sheet was edited after the last database update. Updating database.")
+                write_sheets_to_db(table_name)
+                last_db_edit_timestamp = datetime.datetime.now().replace(microsecond=0)
+            else:
+                while conn.notifies:
+                    notify = conn.notifies.pop(0)
+                    perform_operation_on_sheet(table_name, notify.payload)
+                await asyncio.sleep(3)
 
 if __name__ == "__main__":
 

@@ -82,5 +82,7 @@ All the best ✨.
 - I had setup a script to run on my Google Sheet,such that whenever a change occured, it would send a POST request to a service I had setup on my local machine.
 - However, after a few hours of debugging, I found out that my router does not support port forwarding, and that the trigger I had setup on my Google Apps script would not work.
 - I realised that continously polling the Google Sheet for changes would be an expensive approach, and decided to not implement that method into my project.
+- In the end, due to time constraints, I decided to just keep a last edited timestamp on the sheet itself, and have my polling script perdiocally check for changes in that timestamp.
+- I locally stored the last edited timestamp to make sure that I would not have the script run always.
 - Since I had already made a script that copys the existing data from Google Sheets into the database, I decided to just run that script whenever I wanted to update the database with the Google Sheet.
 - I have solved a few edge cases, an example being when the Google Sheet has completely empty rows, they get skipped instead of directing being added into the database, causing an error.

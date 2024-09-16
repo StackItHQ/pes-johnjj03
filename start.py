@@ -5,7 +5,7 @@ from sheets.default import *
 from sheets.insert import *
 import subprocess
 
-def write_db_to_sheets(sheet_name):
+def write_sheets_to_db(sheet_name):
     column_names, data = read_all_from_sheet(sheet_name)
     if not data:
         print("Sheet does not exist in the document.")
@@ -14,7 +14,7 @@ def write_db_to_sheets(sheet_name):
     write_all_to_db(table_name,column_names,data)
     return table_name
 
-def write_sheets_to_db(table_name):
+def write_db_to_sheets(table_name):
     column_names, data = read_all_from_db(table_name)
     if not data:
         print("Table does not exist in the database.")
@@ -56,11 +56,11 @@ def main():
 
     if config["google_sheets_priority"] == 1:
         sheet_name = input("Enter the name of the Sheet you want to sync with the database: ")
-        table_name = write_db_to_sheets(sheet_name)
+        table_name = write_sheets_to_db(sheet_name)
     
     elif config["post_database_priority"] == 1:
         table_name = input("Enter the name of the table you want to sync with Google Sheets: ")
-        sheet_name = write_sheets_to_db(table_name)
+        sheet_name = write_db_to_sheets(table_name)
 
     print("Sync completed.")
 

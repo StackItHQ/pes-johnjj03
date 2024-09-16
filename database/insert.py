@@ -15,7 +15,7 @@ def write_all_to_db(sheet_name, column_names, data):
         dbname=os.getenv('DB_NAME')
     )
     cursor = db.cursor()
-    
+
     table_name = sheet_name
 
     cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
@@ -23,7 +23,7 @@ def write_all_to_db(sheet_name, column_names, data):
     # Creates the query as a string to create the table with the columns
     create_table_query = f"""
 CREATE TABLE IF NOT EXISTS "{table_name}" (
-    {', '.join([f'"{col}" VARCHAR(255)' for col in column_names])}
+    {', '.join([f'"{col}" VARCHAR(255)' for col in column_names if col])}
 );
 """
 
