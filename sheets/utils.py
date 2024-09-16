@@ -2,6 +2,8 @@ import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
+import json
+
 
 load_dotenv()
 
@@ -9,7 +11,6 @@ load_dotenv()
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
-RANGE_NAME = 'Sheet1!A1:D'
 
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE, scopes=SCOPES)
@@ -28,27 +29,32 @@ def read_all_from_sheet(sheet_name):
     column_names = values[0]
     return column_names,values
 
-# Function to write all data to Google Sheets
-def write_all_to_sheet(sheet_name, column_names, data):
-    # Initialize the Google Sheets API service
-    creds = credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-    service = build('sheets', 'v4', credentials=creds)
-    sheet = service.spreadsheets()
 
-    # Prepare the data to be written
-    values = [column_names] + data
-    body = {
-        'values': values
-    }
+def clean_data_insert_delete(data,operation):
+    json_data = data.replace(f'{operation}: ', '')
 
-    # Define the range to update
-    range_name = f'{sheet_name}!A1'
+    parsed_data = json.loads(json_data)
 
-    # Write data to the sheet
-    result = sheet.values().update(
-        spreadsheetId=SPREADSHEET_ID,
-        range=range_name,
-        valueInputOption='RAW',
-        body=body
-    ).execute()
+    # Extract column names and values
+    columns = list(parsed_data.keys())
+    values = list(parsed_data.values())
 
+    return columns, values
+
+def clean_data_update(data):
+    json_data = data.replace('UPDATE: ', '')
+
+    parsed_data = json.loads(json_data)
+
+    # Extract old and new values
+    old_values = parsed_data['old']
+    new_values = parsed_data['new']
+
+    # Extract column names
+    columns = list(old_values.keys())
+
+    # Extract old and new values
+    old_values = list(old_values.values())
+    new_values = list(new_values.values())
+
+    return columns, old_values, new_values

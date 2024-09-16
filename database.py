@@ -1,24 +1,23 @@
-import mysql.connector
-import os 
+import psycopg2
+import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # Database setup
-db = mysql.connector.connect(
+db = psycopg2.connect(
     host=os.getenv('DB_HOST'),
-    user=os.getenv('DB_USER'),
+    user="postgres",
     password=os.getenv('DB_PASSWORD'),
-    database=os.getenv('DB_NAME')
+    dbname=os.getenv('DB_NAME')
 )
 cursor = db.cursor()
 
-
 # Function to read data from the database
-def read_from_db(sheet_name):
+def read_all_from_db(sheet_name):
     TABLE_NAME = sheet_name
     try:
-        cursor.execute(f"SELECT * FROM {TABLE_NAME}")
+        cursor.execute(f'SELECT * FROM "{TABLE_NAME}"')
     except Exception as e:
         print(f"Error: {e}")
         return [], []
@@ -32,36 +31,29 @@ def read_from_db(sheet_name):
     return column_names, result
 
 # Function to write all data from sheets to the database
-def write_all_to_db(sheet_name,column_names,data):
-    TABLE_NAME = sheet_name
+def write_all_to_db(sheet_name, column_names, data):
+    table_name = sheet_name
 
-    cursor.execute(f"DROP TABLE IF EXISTS {TABLE_NAME}")
+    cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
 
     # Creates the query as a string to create the table with the columns
     create_table_query = f"""
-CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
-    {', '.join([f'`{col}` VARCHAR(255)' for col in column_names])}
+CREATE TABLE IF NOT EXISTS "{table_name}" (
+    {', '.join([f'"{col}" VARCHAR(255)' for col in column_names])}
 );
-""".format()
+"""
 
     cursor.execute(create_table_query)
 
-    #iteratively inserts the data into the table
+    query = f"""
+    INSERT INTO {table_name} ({', '.join([f'"{col}"' for col in column_names])}) 
+    VALUES ({', '.join(['%s'] * len(column_names))})
+    """
+    
     for row in data[1:]:
-    # Construct the query
-        query = f"INSERT INTO {TABLE_NAME} ({', '.join([f'`{col}`' for col in column_names])}) VALUES ({', '.join(['%s'] * len(row))});"
+        if not row:
+            continue
         cursor.execute(query, row)
+        pass
 
-    db.commit()
-
-# Function to update data in the database
-def update_db(sheet_name,data):
-    TABLE_NAME = 'your_table'
-    cursor.executemany("UPDATE %s SET col1=%s, col2=%s, col3=%s, col4=%s WHERE id=%s", (TABLE_NAME,data))
-    db.commit()
-
-# Function to delete data from the database
-def delete_from_db(sheet_name,ids):
-    TABLE_NAME = 'your_table'
-    cursor.executemany("DELETE FROM %s WHERE id=%s", (TABLE_NAME,ids))
     db.commit()
