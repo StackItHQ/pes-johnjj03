@@ -1,9 +1,10 @@
 import json
 from database import *
-from sheets import *
+from sheets.default import *
+from sheets.insert import *
 import subprocess
 
-def sync_sheets_to_db(sheet_name):
+def sync_db_to_sheets(sheet_name):
     column_names, data = read_all_from_sheet(sheet_name)
     if not data:
         print("Sheet does not exist in the document.")
@@ -12,7 +13,7 @@ def sync_sheets_to_db(sheet_name):
     write_all_to_db(table_name,column_names,data)
     return table_name
 
-def sync_db_to_sheets(table_name):
+def sync_sheets_to_db(table_name):
     column_names, data = read_all_from_db(table_name)
     if not data:
         print("Table does not exist in the database.")
@@ -53,15 +54,15 @@ def main():
 
     if config["google_sheets_priority"] == 1:
         sheet_name = input("Enter the name of the Sheet you want to sync with the database: ")
-        table_name = sync_sheets_to_db(sheet_name)
+        table_name = sync_db_to_sheets(sheet_name)
     
     elif config["mysql_database_priority"] == 1:
         table_name = input("Enter the name of the table you want to sync with Google Sheets: ")
-        sheet_name = sync_db_to_sheets(table_name)
+        sheet_name = sync_sheets_to_db(table_name)
 
     print("Sync completed.")
 
-    # subprocess.run(["python", "database_listener.py",table_name],shell=True,text=True)
+    subprocess.run(["python", "./listeners/database_listener.py",table_name],shell=True,text=True)
 
 
 if __name__ == "__main__":

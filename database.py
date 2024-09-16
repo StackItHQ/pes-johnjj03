@@ -49,7 +49,10 @@ CREATE TABLE IF NOT EXISTS "{table_name}" (
     INSERT INTO {table_name} ({', '.join([f'"{col}"' for col in column_names])}) 
     VALUES ({', '.join(['%s'] * len(column_names))})
     """
+    
     for row in data[1:]:
+        if not row:
+            continue
         cursor.execute(query, row)
         pass
 
